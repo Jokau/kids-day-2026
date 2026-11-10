@@ -1,0 +1,102 @@
+DÉFI 4 — LA PORTE SECRÈTE (la fanfare)
+Mode d'emploi de l'animateur. À faire AVEC le groupe, sur LEUR fichier.
+
+=== 1. De quoi parle-t-on ? ===
+
+Pour l'instant, un mot d'un tableau déclenche UNE seule note.
+L'idée du défi : un mot choisi par le groupe déclenchera DEUX notes qui se
+suivent — par exemple « pa-ta-tam ! » — au lieu d'une seule. Ce deux-notes,
+on l'appelle ici une « fanfare ».
+
+Pour que ça marche, il faut ajouter quelques lignes de code. Elles ne
+sont pas dans le fichier : c'est le groupe qui les colle avec toi, à un
+endroit précis (le mode d'emploi est plus bas).
+
+=== 2. Comment la machine sait-elle quelle note jouer ? ===
+
+Rappel de la machine : elle cherche le mot de la carte dans le tableau
+NOTE_COMMANDS. Quand elle le trouve, elle note SA POSITION dans le tableau
+— et joue la fréquence qui est à la MÊME position dans NOTE_FREQS.
+
+Important : dans le code, les positions commencent à 0, pas à 1 !
+Le tableau au crayon des enfants ne change pas :
+
+    note du tableau au crayon :  | DO  RÉ  MI  FA  SOL  LA  SI  DO aigu
+    n° de la case (le manuel) :  |  1   2   3   4    5   6   7    8
+    l'index dans le code :       |  0   1   2   3    4   5   6    7
+
+Donc quand on écrira « 4 » dans le code, cela voudra dire : « la note de
+la case 5 du tableau au crayon » — c'est-à-dire SOL dans l'ordre du
+tableau (peu importe le mot que les enfants ont choisi pour la case 5 :
+c'est LA NOTE qui compte, pas son mot).
+
+=== 3. Ce que fait le code qu'on va coller (ligne par ligne) ===
+
+   if (note == 8) {
+   « Si le mot venu de la carte est celui de la case 9 (index 8)… »
+
+     jouerUneNote(note, TEMPO_MS);
+   « …alors joue sa note — celle de sa case — pendant un temps. »
+
+     jouerUneNote(4, TEMPO_MS);
+   « …puis joue aussitôt en dessous la note de la case 5 (SOL), pendant
+   un temps : voilà la deuxième note de la fanfare ! »
+
+     quelqueChoseAJoue = true;
+   « …et retiens que la carte a bien servi à quelque chose. »
+
+   } else {
+     jouerUneNote(note, TEMPO_MS * demisTemps / 2);
+     quelqueChoseAJoue = true;
+   }
+   « Tous les AUTRES mots, eux, jouent comme d'habitude (leur durée
+   habituelle). C'est le comportement normal, inchangé. »
+
+En résumé : le mot de la case 9 devient le mot de la fanfare — sa note,
+puis une deuxième note au choix du groupe. Tous les autres mots se
+comportent comme avant.
+
+=== 4. Le mode d'emploi, pas à pas ===
+
+AVANT TOUT : la case 9 (ou 10) doit être remplie dans le tableau du
+fichier des enfants (zone EXERCICE 1) : le mot déclencheur + une
+fréquence (comme au Défi 1).
+
+ÉTAPE 1 — Ouvre le fichier d'un groupe (02_MusiqueCartes_Nano ; pour un
+kit ESP32 : 02_MusiqueCartes, la même recette marche). Cherche, dans la
+fonction jouerLeTexte, la ligne :
+
+      jouerUneNote(note, TEMPO_MS * demisTemps / 2);
+
+ÉTAPE 2 — Remplace CETTE SEULE LIGNE par le bloc ci-dessous :
+
+      if (note == 8) {                             // le mot de la case 9 !
+        jouerUneNote(note, TEMPO_MS);              // sa note, un temps
+        jouerUneNote(4, TEMPO_MS);                 // puis la note de la case 5 : la fanfare !
+        quelqueChoseAJoue = true;
+      } else {
+        jouerUneNote(note, TEMPO_MS * demisTemps / 2);
+        quelqueChoseAJoue = true;
+      }
+
+Les deux nombres à adapter avec le groupe :
+  - le « 8 » : l'index du mot déclencheur (case 9 = 8, case 10 = 9) ;
+    il doit correspondre à la case que le groupe a remplie !
+  - le « 4 » : l'index de la deuxième note (0 = DO, 1 = RÉ, 2 = MI,
+    3 = FA, 4 = SOL, 5 = LA, 6 = SI, 7 = DO aigu). Le groupe choisit.
+
+Ne pas mettre le « 4 » égal au chiffre du déclencheur : la fanfare
+doit changer de note, sinon on n'entend qu'une longue note !
+
+ÉTAPE 3 — Relance le programme sur la machine (comme d'habitude). Le
+groupe tape sa carte-déclencheur : sa note sonne, puis la deuxième.
+La fanfare ! Les autres cartes, elles, jouent normalement.
+
+=== 5. Pour annuler et retrouver le fichier d'origine ===
+
+Supprime tout le bloc if/else et remets la seule ligne d'origine :
+
+      jouerUneNote(note, TEMPO_MS * demisTemps / 2);
+
+(Pendant que le bloc est en place, le fichier de CE groupe diffère de la
+version de l'animateur à un 4e endroit — c'est normal, voir AGENTS.md.)

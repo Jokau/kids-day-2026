@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>La Machine à Cartes Musicales — Fiches à imprimer</title>
+<style>
+  @page { size: A4; margin: 13mm; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; color: #1c2733; margin: 0; line-height: 1.45; }
+  h1 { font-size: 20pt; margin: 4px 0 2px 0; color: #14539a; }
+  h2 { font-size: 14pt; color: #14539a; border-bottom: 2px solid #14539a; padding-bottom: 2px; margin: 10px 0 6px 0; }
+  h3 { font-size: 12pt; margin: 8px 0 4px 0; color: #333; }
+  p  { margin: 5px 0; }
+  .page { page-break-before: always; }
+  .center { text-align: center; }
+  .box { border: 1.5px solid #14539a; border-radius: 6px; padding: 7px 10px; margin: 8px 0; }
+  .box-regle { border: 2px solid #c0392b; background: #fdf2f0; }
+  .box-regle b { color: #c0392b; }
+  .box-fait { border: 1.5px solid #2e8b57; background: #f0faf4; }
+  .box-fait b { color: #147a44; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 10pt; }
+  th, td { border: 1px solid #9db3c8; padding: 4px 7px; text-align: center; }
+  th { background: #e3eefb; }
+  code { font-family: Consolas, 'Courier New', monospace; background: #eef2f6; padding: 1px 4px; border-radius: 3px; font-size: 9.5pt; }
+  .legende { font-size: 9pt; color: #556; }
+  .check li::before { content: "☐ "; }
+</style>
+</head>
+<body>
+
+<h1>Fiches de l'atelier — à imprimer avant le jour</h1>
+<p class="legende">Ces fiches font partie du matériel imprimé de la journée :
+les cartes de branchement (une copie à la table), l'affiche de la règle
+d'or bien en évidence, et la liste du matériel. Le manuel de l'enfant est
+un autre document :
+<code>kid resources\manual\manuel_enfant.pdf</code>.</p>
+
+<!-- ========== FICHE A : WIRING CARD 1 ========== -->
+<div class="page">
+<h2>Fiche A — Carte de branchement 1 : la voix et la lumière (LED + buzzer)</h2>
+<p><b>Avant chaque fil :</b> l'USB est-il débranché ? (Voir la Règle d'or,
+fiche C.) Branche fil par fil, et vérifie chaque fil à voix haute, les
+DEUX bouts avec le doigt : le premier fil doit mener où la fiche l'indique.</p>
+<table>
+  <tr><th>Pour…</th><th>Tu branches…</th><th>Couleur conseillée</th></tr>
+  <tr><td>la broche <code>D8</code> de la Nano</td><td>vers la broche <b>S</b> du buzzer</td><td>au choix</td></tr>
+  <tr><td>la broche <code>3V3</code> de la Nano</td><td>vers la broche <b>du milieu</b> du buzzer</td><td style="background:#e74c3c;color:white">rouge</td></tr>
+  <tr><td>la broche <code>−</code> (ou GND) du buzzer</td><td>vers <code>GND</code> de la Nano</td><td style="background:black;color:white">noir</td></tr>
+  <tr><td>la broche <code>D2</code> de la Nano</td><td>vers une patte de la <b>résistance</b> (200 à 350 Ω — par ex. 220 ou 330, les deux marchent)</td><td>au choix</td></tr>
+  <tr><td>l'autre patte de la résistance</td><td>vers la patte <b>la plus LONGUE</b> de la LED</td><td>patte longue = « + »</td></tr>
+  <tr><td>la patte courte de la LED</td><td>vers <code>GND</code> de la Nano</td><td style="background:black;color:white">noir</td></tr>
+</table>
+<div class="box"><b>⚠ Le buzzer :</b> module à <b>3 broches</b> (S, milieu, −) :
+branche les trois, et <u>jamais</u> sur 5V. À <b>2 pattes</b> (buzzer passif nu) :
+une patte vers <code>D8</code>, l'autre vers <code>GND</code> — rien d'autre.</div>
+<div class="box box-fait"><b>🏁 Contrôle-étape :</b> l'animateur lance
+<code>01_Test_Nano</code>. La machine doit jouer la gamme — DO, RÉ, MI, FA,
+SOL, LA, SI, DO aigu — puis un silence, et ça recommence ; la LED clignote en
+même temps. Si tu entends un seul buzz plat et constant : buzzer « actif » —
+appelle l'animateur pour échanger la pièce.</div>
+</div>
+
+<!-- ========== FICHE B : WIRING CARD 2 ========== -->
+<div class="page">
+<h2>Fiche B — Carte de branchement 2 : le lecteur RC522 (7 fils)</h2>
+<div class="box box-regle"><b>Règle d'or avant de commencer :</b> débranche
+l'USB <u>maintenant</u>. Les 7 fils doivent être posés et vérifiés
+<u>avant</u> de rebrancher. La broche <b>IRQ</b> reste vide : pas de fil
+dessus, c'est normal !</div>
+<table>
+  <tr><th>Broche du RC522</th><th>Vers où sur la Nano</th><th>Couleur conseillée</th><th>Ton fil ?</th></tr>
+  <tr><td><code>3.3V</code></td><td><code>3V3</code></td><td style="background:#e74c3c;color:white">rouge</td><td>☐</td></tr>
+  <tr><td><code>RST</code></td><td><code>D9</code></td><td style="background:#e67e22;color:white">orange</td><td>☐</td></tr>
+  <tr><td><code>GND</code></td><td><code>GND</code></td><td style="background:black;color:white">noir</td><td>☐</td></tr>
+  <tr><td><code>IRQ</code></td><td><b>rien</b> — pas de fil !</td><td>—</td><td>—</td></tr>
+  <tr><td><code>MISO</code></td><td><code>D12</code></td><td style="background:#2980b9;color:white">bleu</td><td>☐</td></tr>
+  <tr><td><code>MOSI</code></td><td><code>D11</code></td><td style="background:#27ae60;color:white">vert</td><td>☐</td></tr>
+  <tr><td><code>SCK</code></td><td><code>D13</code></td><td style="background:#f1c40f;color:#333">jaune</td><td>☐</td></tr>
+  <tr><td><code>SDA</code> <em>(ou <code>NSS</code> sur certains lecteurs)</em></td><td><code>D10</code></td><td style="background:#eceff1;color:#333">blanc/gris</td><td>☐</td></tr>
+</table>
+<div class="box box-fait"><b>🏁 Contrôle-étape :</b> rebranche l'USB.
+L'animateur lance <code>02_MusiqueCartes_Nano</code> : le moniteur série doit
+afficher <code>La machine attend une carte...</code>. Touche une carte déjà
+écrite : la LED s'allume, le buzzer joue, le moniteur dit
+<code>Je joue DO pendant 1 temps</code>. Toute la chaîne
+téléphone → carte → machine → son fonctionne !</div>
+</div>
+
+<!-- ========== FICHE C : REGLE D'OR (POSTER) ========== -->
+<div class="page">
+<h2>Fiche C — La Règle d'or (à afficher bien en évidence)</h2>
+<div class="box box-regle">
+<p class="center" style="font-size:13pt"><b>USB débranché = fils autorisés.</b></p>
+<p class="center" style="font-size:13pt"><b>USB branché = mains loin des fils !</b></p>
+<p>Aucun fil n'est touché, déplacé ou vérifié quand la machine est branchée.
+D'abord l'USB, ensuite le fil, puis l'USB revient. Une broche qui touche la
+mauvaise broche quand ça clignote… et le lecteur peut mourir.</p>
+</div>
+<div class="box"><b>Le câble USB-C</b> est la <b>seule</b> entrée de
+courant de la machine, et il va dans la <b>seule</b> prise USB-C de la carte :
+vers l'ordinateur quand on programme (ou lit le moniteur), ou vers un simple
+chargeur de téléphone 5 V quand la machine joue toute seule — les deux
+débouchent sur le même 5 V.</div>
+</div>
+
+<!-- ========== FICHE D : CHECKLIST ========== -->
+<div class="page">
+<h2>Fiche D — Le matériel de la table (cocher avant de commencer)</h2>
+<p class="legende">Un seul objet manquant peut bloquer la machine : on vérifie
+cette liste AVANT de commencer, et c'est ici qu'on cherche d'abord si un
+objet se perd en cours de journée.</p>
+<ul class="check">
+<li>La carte Arduino Nano V4 3V (Joy-it ARD-NanoV4-3V-MC)</li>
+<li>Le lecteur RC522</li>
+<li>Le buzzer passif à 3 broches (module KY-006, ou équivalent)</li>
+<li>Une LED et une résistance de 200 à 350 Ω (220 ou 330)</li>
+<li>Une plaque d'essai (breadboard)</li>
+<li>Environ 12 fils Dupont, <b>triés par avance</b> : les rouges pour le
+courant (les <code>3V3</code>), les noirs pour les masses (les
+<code>GND</code>), et d'autres couleurs pour les fils de signal — la fiche
+de branchement indique une couleur conseillée par broche</li>
+<li>Une pochette de 8 cartes blanches neuves (MIFARE Classic)</li>
+<li>Un téléphone avec l'appli <b>NFC Tools</b> installée
+(un par kit, ou partagé entre deux kits voisins)</li>
+<li>Les cartes de branchement imprimées (fiches A et B)</li>
+<li>Un marqueur (pour étiqueter chaque carte)</li>
+<li>Un câble USB-C <b>data</b> + un chargeur de téléphone 5 V</li>
+<li>L'accès à un ordinateur — nécessaire seulement aux étapes d'envoi de
+programme ; un ou deux ordinateurs partagés suffisent à la salle entière</li>
+</ul>
+<div class="box box-fait"><b>Précision sur les couleurs des fils :</b> rouge
+et noir pour l'énergie (broches <code>3V3</code> et <code>GND</code>),
+d'autres couleurs pour les fils de signal — câble par câble, la couleur
+conseillée est sur la fiche de branchement.</div>
+</div>
+
+</body>
+</html>
