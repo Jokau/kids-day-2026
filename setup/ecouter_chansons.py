@@ -4,7 +4,7 @@ ecouter_chansons.py — l'interpreteur Python du protocole des cartes.
 
 Il applique EXACTEMENT la logique du sketch 02_MusiqueCartes_Nano :
   - couper le texte en mots (lettres, +, chiffres),
-  - lire le chiffre de la fin (la durée, comptée en croches),
+  - lire les barres « | » collées derrière le mot (la durée, en demi-temps),
   - chercher le mot dans le tableau du protocole,
   - jouer la fréquence pendant la durée prévue.
 
@@ -22,7 +22,7 @@ RE++ comme RE (deux octaves plus bas), FA#+ comme FA# (et non comme FA).
 Utilisation :
   python ecouter_chansons.py                     -> joue TOUTES les chansons du manuel
   python ecouter_chansons.py --sans-plus         -> idem, sur la gamme de base
-  python ecouter_chansons.py "DO RE SOL4"        -> joue TON texte de carte
+  python ecouter_chansons.py "DO RE SOL||||"     -> joue TON texte de carte
   python ecouter_chansons.py --sans-plus "DO+"   -> ton texte, gamme de base
 """
 import sys
@@ -49,10 +49,10 @@ NOTE_COMMANDS = {
     "VACHE": 200,
 }
 
-def duree_en_demi_temps(nombre):
+def duree_en_demi_temps(barres):
     """La convention de duree - la MEME que dans la fonction du sketch."""
-    if nombre == 0: return 2   # sans chiffre : une noire (2 croches)
-    return nombre              # le chiffre EST la duree, en croches
+    if barres == "": return 2   # sans barre : une noire (2 demi-temps)
+    return barres.count('|')    # une barre = un demi-temps
 
 def est_morceau_de_mot(c):
     return (c >= 'A' and c <= 'Z') or (c >= 'a' and c <= 'z') \
@@ -80,12 +80,10 @@ def jouer(texte, tempo_ms, avec_plus=True):
             i += 1
         mot = texte[debut:i]
 
-        nombre = 0
-        valeur = 1
-        while mot and mot[-1] >= '0' and mot[-1] <= '9':
-            nombre += int(mot[-1]) * valeur   # les chiffres, de droite a gauche
-            valeur *= 10
-            mot = mot[:-1]
+        barres = ""
+        while i < len(texte) and texte[i] == '|':   # les barres collees au mot
+            barres += '|'
+            i += 1
         mot = mot.upper()
 
         if not avec_plus and mot.endswith('+'):
@@ -99,7 +97,7 @@ def jouer(texte, tempo_ms, avec_plus=True):
 
         freq = NOTE_COMMANDS.get(mot)
         if freq and freq > 0:
-            demis = duree_en_demi_temps(nombre)
+            demis = duree_en_demi_temps(barres)
             duree = tempo_ms * demis // 2
             if demis % 2 == 0:
                 print("  Je joue", mot, "pendant", demis // 2, "temps")
@@ -124,36 +122,36 @@ def jouer(texte, tempo_ms, avec_plus=True):
 # VER BATIM du tableau correspondant du manuel (l'enfant la copie telle quelle).
 CHANSONS_CLASSIQUES = [
     ("Au clair de la lune", 500, [
-        "DO DO DO RE MI4 RE DO MI4 RE RE DO4",
+        "DO DO DO RE MI|||| RE DO MI|||| RE RE DO||||",
     ]),
     ("Frere Jacques", 450, [
-        "DO RE MI DO DO RE MI DO MI FA SOL4 MI FA SOL4 SOL LA SOL FA MI DO SOL LA SOL FA MI DO DO SOL DO DO SOL DO",
+        "DO RE MI DO DO RE MI DO MI FA SOL|||| MI FA SOL|||| SOL LA SOL FA MI DO SOL LA SOL FA MI DO DO SOL DO DO SOL DO",
     ]),
     ("Ah ! vous dirai-je, maman (Twinkle)", 500, [
-        "DO DO SOL SOL LA LA SOL4 FA FA MI MI RE RE DO4",
+        "DO DO SOL SOL LA LA SOL|||| FA FA MI MI RE RE DO||||",
     ]),
     ("Ode a la joie (version simplifiee)", 450, [
-        "MI MI FA SOL SOL FA MI RE DO DO RE MI MI3 RE1 RE4",
+        "MI MI FA SOL SOL FA MI RE DO DO RE MI MI||| RE| RE||||",
     ]),
     ("Vive le vent", 430, [
-        "MI MI MI4 MI MI MI4 MI SOL DO RE MI4",
+        "MI MI MI|||| MI MI MI|||| MI SOL DO RE MI||||",
     ]),
     ("Joyeux anniversaire", 460, [
-        "SOL SOL LA SOL DO+ SI4",
-        "SOL SOL LA SOL RE+ DO+4",
-        "SOL SOL SOL MI DO+ SI4 LA4",
-        "FA FA MI DO+ RE+ DO+4"
+        "SOL SOL LA SOL DO+ SI||||",
+        "SOL SOL LA SOL RE+ DO+||||",
+        "SOL SOL SOL MI DO+ SI|||| LA||||",
+        "FA FA MI DO+ RE+ DO+||||"
     ]),
     ("Une souris verte (le debut)", 450, [
-        "SOL1 SOL1 SOL1 LA1 SOL RE",
+        "SOL| SOL| SOL| LA| SOL RE",
     ]),
 ]
 
 CHANSONS_2026 = [
     ("Golden - HUNTR/X (la pre-chanson puis tout le refrain)", 380, [
-        "LA DO FA MI MI4",
-        "SOL SOL LA SOL SOL4",
-        "SI RE SOL FA FA MI4",
+        "LA DO FA MI MI||||",
+        "SOL SOL LA SOL SOL||||",
+        "SI RE SOL FA FA MI||||",
         "MI MI LA LA LA LA",
         "MI MI SOL SOL RE",
         "SOL SOL SOL SOL FA FA FA MI",
@@ -164,10 +162,10 @@ CHANSONS_2026 = [
         "SI LA SOL RE"
     ]),
     ("APT. - Rose & Bruno Mars (le hook : une seule note, le rythme fait tout)", 280, [
-        "DO4 DO1 DO1 DO1 DO4 DO4 DO1 DO1",
-        "DO4 DO1 DO1 DO1 DO4 DO4 DO1 DO1",
-        "DO1 DO1 DO1 DO1 DO DO DO DO DO4",
-        "DO4 DO1 DO1 DO1 DO4"
+        "DO|||| DO| DO| DO| DO|||| DO|||| DO| DO|",
+        "DO|||| DO| DO| DO| DO|||| DO|||| DO| DO|",
+        "DO| DO| DO| DO| DO DO DO DO DO||||",
+        "DO|||| DO| DO| DO| DO||||"
     ])
 ]
 

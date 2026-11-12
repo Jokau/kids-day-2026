@@ -91,15 +91,23 @@ ESP32/
   lines (kids': all-empty strings/zeros; solved: the demo encoding DO..DO+,
   RE+, VACHE), the three optional lines of `estMorceauDeMot()` (commented
   hint lines in the kids' file; active in the solved one — the demo
-  protocole uses digits and symbols), and the `return` of
-  `dureeEnDemiTemps()` (`return 0;` in the kids' empty function). Verify
-  after any edit with `diff` of comment-stripped bodies (the header
+  protocole has '+' words, and its digits line stays active, since
+  word-like codes may carry digits), and the `dureeEnDemiTemps()` body
+  (`return 0;` in the kids' empty function; solved in the solved one).
+  Verify after any edit with `diff` of comment-stripped bodies (the header
   comments describing the diff are allowed to differ). The
   kids' file carries NO hint of any encoding: no suggested words, no
   suggested durations — the kids invent both, guided by the manual's
-  crayon table and the song pages' scores. Exception: a group attempting
-  the optional Défi 4 (secret-door fanfare, recipe in SESSION_PLAN) gains a
-  fourth diff spot on its own laptop's copy — expected and un-doable.
+  crayon table and the song pages' scores. Exceptions: (1) since
+  2026-11-12, at the user's explicit decision ("fix syntax, keep the
+  data"), the working copy of the kids' file keeps a trial encoding in its
+  tables (D262, R294, M330, F350, SO392, L440, S494) WITH the digits hint
+  line of `estMorceauDeMot()` uncommented to match (without it, a D262 card
+  parses as just "D" and plays nothing) — re-empty the tables AND re-comment
+  that line before the laptop freeze (§A step 10 of SESSION_PLAN). (2) A group
+  attempting the optional Défi 4 (secret-door fanfare, recipe in
+  SESSION_PLAN) gains a fourth diff spot on its own laptop's copy —
+  expected and un-doable.
 - Their ESP32 twins hold the same invariant with only three classes of
   substitution: the pin defines (SS 5 / RST 21 / buzzer 25), `tone()`/`noTone()`
   → `ledcWriteTone()`, and the `pinMode(BUZZER_PIN, OUTPUT)` →
@@ -107,11 +115,15 @@ ESP32/
   to the Nano versions.
 - Card-text protocole logic (the fixed machinery the kids build on): whatever
   is written on a card is played in order; a line break is a one-beat pause;
-  whatever is written behind a word — nothing (passed as 0) or trailing
-  digits parsed without moving the text cursor — goes into the kids'
-  `dureeEnDemiTemps()`, which must answer in **demi-temps**; a word that is
-  only digits must skip cleanly, never hang the loop. WHAT the kids write
-  and what each writing means is theirs to invent.
+  the bar(s) `|` glued right behind a word — or none (an empty string `""`
+  is passed) — go into the kids' `dureeEnDemiTemps(const char* barres)`
+  (changed 2026-11-12 from `int nombre`/trailing digits to bars), which must
+  answer in **demi-temps**; a plain digit string is skipped as a
+  separator when the digit hint line is commented, and looks up as an
+  unknown word when it is active — either way the loop never hangs. WHAT
+  the kids write and what each writing means is theirs to invent (the
+  manual proposes: one bar = one demi-temps — `|` croche, `||` noire,
+  `|||` pointée, `||||` blanche, word without bars = noire).
 - RC522 keys (learned 2026-11 the hard way, cost a full day): a MIFARE
   sector's key depends on WHO wrote it — factory cards use
   `FFFFFFFFFFFF`; the **NFC Tools app re-locks every sector it writes with

@@ -68,11 +68,11 @@
 // (le +, le -, ce que tu veux) — MAIS écris sans accents : le téléphone
 // garde ses accents, la machine ne comprend que les lettres simples.
 
-const char* NOTE_COMMANDS[10] = {"",    "",    "",   "",   "",
-                                 "",    "",    "",   "",   ""};
+const char* NOTE_COMMANDS[10] = {"D262", "R294",   "M330",   "F350",   "SO392",
+                                 "L440", "S494",   "D524", "R588", ""};
 
-const int NOTE_FREQS[10] = { 0, 0, 0, 0, 0,
-                             0, 0, 0, 0, 0 };   // 0 = pas encore choisi
+const int NOTE_FREQS[10] = { 262, 294, 330, 350, 392,
+                             440, 494, 524, 588, 0 };   // 0 = pas encore choisi
 
 const int NOTE_COUNT    = 10;   // la taille des deux listes (8 notes + 2 à toi)
 
@@ -245,9 +245,10 @@ int texteBrute(const byte* brut, int brutLen, char* sortie, int sortieTaille) {
 // ---------------------------------------------------------------------
 
 bool estMorceauDeMot(char c) {
-  return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+  return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')
     //  || c == '+'                // si ton protocole a des symboles
-    //  || (c >= '0' && c <= '9'); // si ton protocole a des chiffres
+    || (c >= '0' && c <= '9'); // les chiffres du mot font partie du mot (ex : D262)
+    //  (ligne des chiffres RE-commentee pour redonner le fichier d'origine)
 }
 
 char enMajuscule(char c) {
@@ -255,11 +256,12 @@ char enMajuscule(char c) {
 }
 
 // Découpe le texte en mots, traduit chaque mot avec les tableaux, et joue.
-// La DURÉE d'une note : ce qui est écrit derrière le mot — un nombre, ou
-// rien du tout (c'est 0 qui arrive alors) — est transmis d'un bloc à la
-// fonction dureeEnDemiTemps() : c'est LÀ, et nulle part ailleurs, que ta
-// convention de durées vit. (Combien de demi-temps pour chaque écriture ?
-// TOI seul le décides — mais la carte et le code doivent dire la même chose !)
+// La DURÉE d'une note : les barres « | » écrites juste derrière le mot — ou
+// rien du tout (c'est une chaîne vide qui arrive alors) — sont transmises
+// d'un bloc à la fonction dureeEnDemiTemps() : c'est LÀ, et nulle part
+// ailleurs, que ta convention de durées vit. (Combien de demi-temps pour
+// chaque écriture ? TOI seul le décides — mais la carte et le code doivent
+// dire la même chose !)
 void jouerLeTexte(const char* texte) {
   int i = 0;
   bool quelqueChoseAJoue = false;
@@ -281,19 +283,15 @@ void jouerLeTexte(const char* texte) {
     int fin = i;                  // l'index juste après le mot entier
     int longueur = fin - debut;
 
-    // lire ET enlever les chiffres écrits à la fin du mot (ils partent à la
-    // convention de durées), le mot du protocole restant seul — sans reculer
-    int nombre = 0;
-    int valeur = 1;               // pour lire les chiffres de droite à gauche
-    while (longueur > 0) {
-      char chiffre = texte[debut + longueur - 1];
-      if (chiffre < '0' || chiffre > '9') break;
-      nombre += (chiffre - '0') * valeur;
-      valeur *= 10;
-      longueur--;
+    // lire ET enlever les barres « | » collées derrière le mot (elles
+    // partent à la convention de durées), le mot du protocole restant ENTIER
+    char barres[16];              // la suite de « | » du mot, pour la fonction
+    int nbBarres = 0;
+    while (texte[i] == '|') {
+      if (nbBarres < 15) barres[nbBarres++] = '|';
+      i++;
     }
-    i = fin;                      // repartir APRÈS le mot entier : une carte
-                                  // qui ne porte que des chiffres ne bloque plus
+    barres[nbBarres] = '\0';
 
     if (longueur > 15 || longueur < 1) continue;    // ni trop long, ni vide
 
@@ -307,7 +305,7 @@ void jouerLeTexte(const char* texte) {
       if (strcmp(mot, NOTE_COMMANDS[n]) == 0) note = n;
 
     if (note >= 0 && NOTE_FREQS[note] > 0) {
-      int demisTemps = dureeEnDemiTemps(nombre);
+      int demisTemps = dureeEnDemiTemps(barres);
       Serial.print(F("Je joue "));
       Serial.print(mot);
       Serial.print(F(" pendant "));
@@ -329,7 +327,7 @@ void jouerLeTexte(const char* texte) {
       Serial.println(F("\"... le protocole est-il casse ?"));
       bipTriste();
     }
-    // (une lettre toute seule, sans chiffre, reste silencieuse)
+    // (une lettre toute seule, sans barre, reste silencieuse)
   }
   if ( ! quelqueChoseAJoue) Serial.println(F("Rien de jouable sur cette carte."));
 }
@@ -346,14 +344,28 @@ void jouerLeTexte(const char* texte) {
 // des DEUX côtés : sur la carte (l'écriture) et ICI (la réponse).
 //
 // Ce que la machine donne à ta fonction :
-//   0            si le mot ne portait RIEN derrière lui,
-//   un nombre    si la carte portait un nombre derrière le mot.
+//   "" (une chaîne VIDE)   si le mot ne portait RIEN derrière lui,
+//   les barres telles quelles (« | », « || », « ||| », « |||| »…)
+//                          si la carte portait des barres derrière le mot.
 //
 // Et la fonction doit RÉPONDRE en demi-temps — parce que la croche vaut
 // exactement un demi-temps : impossible à dire en temps entiers !
 //
-int dureeEnDemiTemps(int nombre) {
-  return 0;   // ← A TOI : combien de demi-temps pour chaque écriture ?
+int dureeEnDemiTemps(const char* barres) {
+  // NOTRE convention : une barre = un demi-temps
+  //   |    une croche   (1 demi-temps)
+  //   ||   une noire    (2 demi-temps)
+  //   |||  la pointee   (3 demi-temps)
+  //   |||| une blanche  (4 demi-temps)
+  int nb = 0;                        // je compte les barres du mot
+  for (int k = 0; barres[k] != '\0'; k++)
+    if (barres[k] == '|') {
+      nb++;
+    }
+  if (nb == 0) {
+    return 2;   // mot sans barre : une noire
+  }
+    return nb;               // une barre de plus = un demi-temps de plus
 }
 
 // ---------------------------------------------------------------------

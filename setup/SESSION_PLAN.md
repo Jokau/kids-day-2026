@@ -33,7 +33,7 @@ then discovers that two halves of a protocole must always agree, and repairs it.
   the machine's exact protocole logic (word splitting, trailing digits,
   half-beat durations) and beeps via Windows `winsound`; run it to hear every
   song of the manual — classics and the 2026 extra challenges (or
-  `python ecouter_chansons.py "DO RE SOL4"` for any own text) before
+  `python ecouter_chansons.py "DO RE SOL||||"` for any own text) before
   printing the manual.
 - `src\animateur\01_Test_Nano` — the test sketch: code that only *checks* a build
   (sound + LED). Flashed by a helper; nobody edits it during the day.

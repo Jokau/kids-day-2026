@@ -1,3 +1,8 @@
+#include <MFRC522.h>
+#include <MFRC522Extended.h>
+#include <deprecated.h>
+#include <require_cpp11.h>
+
 /*
  * 01_Test_Nano — étape 1 : vérifier les branchements (buzzer + LED seuls).
  * Pas de lecteur à ce stade. Si tu entends la mélodie et vois la LED

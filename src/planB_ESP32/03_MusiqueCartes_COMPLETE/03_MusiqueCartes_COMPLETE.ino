@@ -232,7 +232,7 @@ bool estMorceauDeMot(char c) {
   return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')
       || c == '+'                // le « + » de DO+ : une octave au-dessus
       || c == '#'                // le « # » de FA#+ : la note noire
-      || (c >= '0' && c <= '9'); // le chiffre de durée : 1 croche, 2 noire...
+      || (c >= '0' && c <= '9'); // si le protocole met des chiffres dans ses mots
 }
 
 char enMajuscule(char c) {
@@ -240,12 +240,12 @@ char enMajuscule(char c) {
 }
 
 // Découpe le texte en mots, traduit chaque mot avec les tableaux, et joue.
-// La DURÉE est un chiffre collé derrière le mot : on compte en croches
-// (les demi-temps) — un plus grand chiffre = une note plus longue :
-//    SOL    = une noire   (2 croches = 1 temps) — c'est le mot sans chiffre
-//    SOL1   = une croche  (1 croche = un demi-temps)
-//    SOL3   = la pointée  (3 croches = 1 temps et demi)
-//    SOL4   = une blanche (4 croches = 2 temps)
+// La DURÉE est une suite de barres « | » collées derrière le mot : on
+// compte en demi-temps — une barre de plus = une note plus longue :
+//    SOL     = une noire   (2 demi-temps = 1 temps) — c'est le mot sans barre
+//    SOL|    = une croche  (une barre = un demi-temps)
+//    SOL|||  = la pointée  (3 demi-temps = 1 temps et demi)
+//    SOL|||| = une blanche (4 demi-temps = 2 temps)
 // (c'est la CONVENTION PROPOSÉE — tu peux inventer la tienne,
 //  à condition de la faire vivre des DEUX côtés !)
 void jouerLeTexte(const char* texte) {
@@ -269,19 +269,15 @@ void jouerLeTexte(const char* texte) {
     int fin = i;                  // l'index juste après le mot entier
     int longueur = fin - debut;
 
-    // lire ET enlever les chiffres de la fin (ex : le « 4 » de SOL4) : la
-    // durée d'un côté, le mot du protocole de l'autre — sans reculer le i
-    int nombre = 0;
-    int valeur = 1;               // pour lire les chiffres de droite à gauche
-    while (longueur > 0) {
-      char chiffre = texte[debut + longueur - 1];
-      if (chiffre < '0' || chiffre > '9') break;
-      nombre += (chiffre - '0') * valeur;
-      valeur *= 10;
-      longueur--;
+    // lire ET enlever les barres « | » collées derrière le mot (elles
+    // partent à la convention de durées), le mot du protocole restant ENTIER
+    char barres[16];              // la suite de « | » du mot, pour la fonction
+    int nbBarres = 0;
+    while (texte[i] == '|') {
+      if (nbBarres < 15) barres[nbBarres++] = '|';
+      i++;
     }
-    i = fin;                      // repartir APRÈS le mot entier : une carte
-                                  // qui porte « 4 » ne bloque plus la machine
+    barres[nbBarres] = '\0';
 
     if (longueur > 15 || longueur < 1) continue;    // ni trop long, ni vide
 
@@ -295,7 +291,7 @@ void jouerLeTexte(const char* texte) {
       if (strcmp(mot, NOTE_COMMANDS[n]) == 0) note = n;
 
     if (note >= 0 && NOTE_FREQS[note] > 0) {
-      int demisTemps = dureeEnDemiTemps(nombre);
+      int demisTemps = dureeEnDemiTemps(barres);
       Serial.print(F("Je joue "));
       Serial.print(mot);
       Serial.print(F(" pendant "));
@@ -317,7 +313,7 @@ void jouerLeTexte(const char* texte) {
       Serial.println(F("\"... le protocole est-il casse ?"));
       bipTriste();
     }
-    // (une lettre toute seule, sans chiffre, reste silencieuse)
+    // (une lettre toute seule, sans barre, reste silencieuse)
   }
   if ( ! quelqueChoseAJoue) Serial.println(F("Rien de jouable sur cette carte."));
 }
@@ -326,17 +322,20 @@ void jouerLeTexte(const char* texte) {
 //  EXERCICE 2 — LA CONVENTION DE DURÉE (RÉSOLU)
 // ---------------------------------------------------------------------
 //
-// On compte en croches (les demi-temps) — le chiffre collé au mot est la
-// réponse tout entière :
+// On compte en demi-temps — les barres collées au mot sont la réponse
+// tout entière : une barre de plus = un demi-temps de plus.
 //
-//     mot sans chiffre → une noire   (2 croches = 1 temps)
-//     DO1  → une croche  (1 croche = un demi-temps)
-//     DO3  → la pointée  (3 croches = 1 temps et demi)
-//     DO4  → une blanche (4 croches = 2 temps)
+//     mot sans barre → une noire   (2 demi-temps = 1 temps)
+//     DO|    → une croche  (une barre = un demi-temps)
+//     DO|||  → la pointée  (3 demi-temps = 1 temps et demi)
+//     DO|||| → une blanche (4 demi-temps = 2 temps)
 //
-int dureeEnDemiTemps(int nombre) {
-  if (nombre == 0) return 2;    // sans chiffre : une noire (2 croches)
-  return nombre;   // le chiffre dit la durée : 1 croche, 3 croches...
+int dureeEnDemiTemps(const char* barres) {
+  if (barres[0] == '\0') return 2;    // sans barre : une noire (2 demi-temps)
+  int n = 0;
+  for (int k = 0; barres[k] != '\0'; k++)
+    if (barres[k] == '|') n++;
+  return n;   // une barre = un demi-temps
 }
 
 // ---------------------------------------------------------------------

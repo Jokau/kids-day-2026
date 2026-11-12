@@ -523,22 +523,27 @@ Beethoven !</p>
 <h3>La durée, c'est AUSSI un protocole à décider !</h3>
 <p>Les durées de ta musique, maintenant, il faut arriver à les <b>écrire sur
 une carte</b>, au téléphone. La machine te laisse un choix : derrière un mot,
-tu peux écrire <b>rien du tout</b>, ou <b>un nombre</b> — et c'est TOI qui
-décides ce que chaque écriture veut dire ! Au code, ce qui est écrit derrière
-le mot (ou « rien ») arrive d'un bloc dans ta fonction de durées :
+tu peux écrire <b>rien du tout</b>, ou <b>des barres « | »</b> — et c'est TOI
+qui décides ce que chaque écriture veut dire ! Au code, les barres collées
+derrière le mot (ou « rien ») arrivent d'un bloc dans ta fonction de durées :
 <u>la fonction doit alors répondre combien de <b>demi-temps</b> dure la note</u>
 (demi-temps, parce que la croche vaut exactement un demi-temps :
 impossible à dire en temps entiers !). C'est ta règle à écrire — toujours
 dans le <b>même fichier</b> <code>02_MusiqueCartes_Nano</code>, cette fois
 dans la zone <code>EXERCICE 2</code> :</p>
 <pre>// TA convention de durée : c'est ton protocole, à toi de décider !
-// La fonction reçoit 0 si le mot ne portait RIEN derrière lui,
-// sinon le nombre écrit sur la carte (0, 1, 12, 4096...).
+// La fonction reçoit "" (vide) si le mot ne portait RIEN derrière lui,
+// sinon les barres écrites sur la carte (« | », « || », « |||| »...).
 // Et elle doit RÉPONDRE : combien de DEMI-TEMPS dure la note ?
 
-int dureeEnDemiTemps(int nombre) {
+int dureeEnDemiTemps(const char* barres) {
   return 0;   // <- A TOI : la règle pour chaque durée !
 }</pre>
+<p>Petit détail d'ingénieur : la barre « | » s'écrit sur le clavier du
+téléphone dans la page des <b>symboles</b> (souvent à côté des chiffres) ;
+elle se colle <u>juste derrière le mot</u>, sans espace. Une carte qui porte
+<code>DO||</code> dit une seule chose : DO, qui dure ce que TON protocole
+décide pour « || ».</p>
 <p>Petit repère : la ligne <code>TEMPO_MS</code> existe déjà dans le fichier,
 un peu plus haut — juste au-dessus des tableaux du protocole, dans le coin
 marqué <code>EXERCICE 3</code> : pas besoin de la réécrire, juste de la
@@ -643,7 +648,11 @@ notre machine, alors on les chante une octave plus bas. Pareil pour
 (SOL grave) que notre gamme. Ajuste le tout à l'oreille.</p>
 <div class="box box-fait"><b>Comment jouer une chanson :</b> écris la chanson
 sur une carte au téléphone, d'un seul coup — une transcription dans ton
-protocole, mot après mot, durée après durée. (Sur plusieurs cartes, ça marche
+protocole, mot après mot, durée après durée. Exemple : si tu choisis la
+convention « une barre = un demi-temps » (croche = <code>|</code>, noire =
+<code>||</code>, pointée = <code>|||</code>, blanche = <code>||||</code>, et
+un mot sans barre = une noire), la deuxième phrase d'« Au clair de la lune »
+s'écrit <code>MI|||| RE DO</code>. (Sur plusieurs cartes, ça marche
 aussi : <b>TOUT ce qu'une carte porte est joué, dans l'ordre</b> — un mot,
 une ligne, une chanson entière, comme tu veux. Et si tu vas à la ligne dans
 le texte, la machine fait une petite pause d'un temps : la respiration
@@ -752,8 +761,8 @@ même magie, mais dans le sens inverse : lui, il <u>lit</u>.</p>
 <li><span class="num">2</span> Appuie sur <b>« Add a record »</b> (Ajouter une donnée), puis choisis <b>« Text »</b>.</li>
 <li><span class="num">3</span> Tape <u>ton mot du tableau</u> — exactement comme
 écrit au crayon, par ex. <code>DO</code>. Pour la DURÉE, écris-la comme TON
-protocole la décide (relis la page des durées) : rien du tout, ou un nombre
-derrière le mot — la seule loi est que la carte et ton code
+protocole la décide (relis la page des durées) : rien du tout, ou des barres
+« | » derrière le mot — la seule loi est que la carte et ton code
 disent <u>exactement la même chose</u>.</li>
 <li><span class="num">4</span> Appuie sur <b>Write</b> en bas, puis approche la carte <b>plate</b>
 contre l'arrière (ou le haut) du téléphone sans la bouger. Le téléphone met 1 à

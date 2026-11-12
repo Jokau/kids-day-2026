@@ -59,8 +59,8 @@ look.
   chain works (phone → card → machine → screen + sound). For a true sound
   demo before the protocole day, flash the solved
   `..\src\animateur\03_MusiqueCartes_Nano_COMPLETE` instead: a `DO` card
-  plays a real note; a `SOL4` card plays a long one (digit = duration;
-  digit-less word = a noire).
+  plays a real note; an `SOL||||` card plays a long one (bars = duration;
+  a word without bars = a noire).
 - The sketch is then ready for the day: kids open the same folder, edit the
   contract tables in the marked exercise zones, and Upload again after each
   change.
